@@ -1,0 +1,43 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-3 mb-3">🚀 NASA</h1>
+        <p class="lead">Explore NASA-related picture gallery and blog posts.</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body text-center p-5">
+                    <i class="bi bi-images display-1 text-success mb-3"></i>
+                    <h2 class="card-title mb-3">Pictures</h2>
+                    <p class="card-text mb-4">NASA Martian Soil Project by Sarah Trook.</p>
+                    <a href="{{ url_for('blog_bp.photos_gallery') }}" class="btn btn-success btn-lg">
+                        <i class="bi bi-arrow-right"></i> View Gallery
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body text-center p-5">
+                    <i class="bi bi-journal-text display-1 text-primary mb-3"></i>
+                    <h2 class="card-title mb-3">Blog</h2>
+                    <p class="card-text mb-4">Read articles and updates about NASA missions, space exploration, and
+                        astronomy.</p>
+                    <a href="{{ url_for('blog_bp.blog') }}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-arrow-right"></i> View Blog
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+    {% include '_navbar.html' %}
+
+{% endblock %}

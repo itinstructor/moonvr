@@ -1,0 +1,80 @@
+/* Dark theme for NASA blog pages */
+body {
+    background-color: #1a1a2e;
+    color: #e0e0e0;
+}
+
+.navbar-dark {
+    background-color: #16213e !important;
+}
+
+.card {
+    background-color: #0f3460;
+    border-color: #16213e;
+    color: #e0e0e0;
+}
+
+.card-title {
+    color: #ffffff;
+}
+
+/* Off-white color for muted text */
+.text-muted,
+.post-meta {
+    color: #b0b0b0 !important;
+}
+
+.btn-primary {
+    background-color: #e94560;
+    border-color: #e94560;
+}
+
+.btn-primary:hover {
+    background-color: #d63447;
+    border-color: #d63447;
+}
+
+.btn-outline-secondary {
+    color: #e0e0e0;
+    border-color: #e0e0e0;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #e0e0e0;
+    color: #1a1a2e;
+}
+
+/* Edit post page styles */
+body.edit-post-page {
+    background-color: #0f3460;
+}
+
+.note-editor .note-editable {
+    background-color: #fff;
+    color: #000;
+}
+
+/* Blog post content styles */
+/* Ensure the post content is not clipped by any global rule */
+.blog-post-content {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  word-wrap: break-word !important;
+}
+
+/* Make sure any inline content inserted from editor is visible and uses black text */
+.blog-post-content, .blog-post-content * {
+  color: #e0e0e0 !important;
+  -webkit-text-fill-color: #e0e0e0 !important;
+  background-color: transparent !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Ensure images in blog content are responsive */
+.blog-post-content img {
+    max-width: 100%;
+    height: auto;
+}

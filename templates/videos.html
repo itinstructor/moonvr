@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>🎬 Videos</h3>
+        </div>
+        <div class="card-body">
+            <div class="row g-4">
+                {% for v in videos %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        <a href="https://www.youtube.com/watch?v={{ v.id }}" target="_blank" class="text-decoration-none">
+                            <img src="https://img.youtube.com/vi/{{ v.id }}/hqdefault.jpg" class="card-img-top" alt="{{ v.title }}">
+                        </a>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ v.title }}</h5>
+                            {% if v.description %}
+                            <p class="card-text small text-muted">{{ v.description }}</p>
+                            {% endif %}
+                            <a href="https://www.youtube.com/watch?v={{ v.id }}" target="_blank" class="btn btn-danger">
+                                <i class="bi bi-youtube"></i> Watch on YouTube
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% if videos|length == 0 %}
+                <div class="col-12">
+                    <p class="text-muted">No videos available.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

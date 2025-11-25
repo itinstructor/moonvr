@@ -1,0 +1,46 @@
+﻿{% extends "base.html"%}
+{% block content %}
+<div class="container">
+
+  <div class="mb-4">
+    <h1 class="mb-2">🌙 Moon VR Simulation in Unity</h1>
+    <p>A NASA Moon VR Simulation by Owen Osmera. </p>
+    <p>The project aims to create an immersive virtual reality experience of the lunar surface using Unity and NASA's
+      open data.
+    </p>
+  </div>
+
+
+
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="card h-100 shadow-sm hover-card">
+        <div class="card-body text-center p-5">
+          <i class="bi bi-images display-1 text-success mb-3"></i>
+          <h2 class="card-title mb-3">Pictures</h2>
+          <p class="card-text mb-4">NASA .</p>
+          <a href="{{ url_for('blog_bp.photos_gallery') }}" class="btn btn-success btn-lg">
+            <i class="bi bi-arrow-right"></i> View Gallery
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card h-100 shadow-sm hover-card">
+        <div class="card-body text-center p-5">
+          <i class="bi bi-journal-text display-1 text-primary mb-3"></i>
+          <h2 class="card-title mb-3">Blog</h2>
+          <p class="card-text mb-4">Read updates.</p>
+          <a href="{{ url_for('blog_bp.blog') }}" class="btn btn-primary btn-lg">
+            <i class="bi bi-arrow-right"></i> View Blog
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock %}

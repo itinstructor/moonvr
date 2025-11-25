@@ -1,0 +1,27 @@
+﻿# Core web framework
+Flask>=3.0.2
+
+# WSGI server for production deployment
+waitress>=2.1.2
+
+# HTTP requests library for fetching camera streams and geolocation data
+requests>=2.31.0
+
+# Timezone data for zoneinfo on Windows
+tzdata>=2023.3
+
+# Database ORM for visitor tracking
+Flask-SQLAlchemy>=3.1.1
+SQLAlchemy>=2.0.23
+
+# GeoIP local DB reader
+geoip2>=4.6.0
+
+# Mars Blog dependencies
+python-slugify>=8.0.1
+Pillow>=10.0.0
+
+
+
+# Environment variables from .env file
+python-dotenv>=1.0.0

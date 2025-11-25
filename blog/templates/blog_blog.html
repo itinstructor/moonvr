@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pods In Space Blog</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ url_for('blog_bp.static', filename='css/blog.css') }}">
+</head>
+
+<body>
+    {% include '_navbar.html' %}
+
+    <div class="container py-4 mars-blog">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="bi bi-journal-text"></i> Pods in Space Blog</h1>
+        </div>
+
+        {% if posts %}
+        <div class="row g-4">
+            {% for post in posts %}
+            <div class="col-12">
+                <div class="card h-100 mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ post.title }}</h5>
+                        <p class="text-muted small">
+                            <i class="bi bi-person"></i> {{ post.author.username }}
+                            <i class="bi bi-calendar ms-2"></i> {{ post.created_at.strftime('%B %d, %Y') }}
+                            <i class="bi bi-eye ms-2"></i> {{ post.view_count }} views
+                        </p>
+                        <p class="card-text">{{ post.content|striptags|truncate(150, True, '...') }}</p>
+                        <a href="{{ url_for('blog_bp.view_post', slug=post.slug) }}" class="btn btn-primary">Read More
+                            →</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No blog posts yet. {% if session.get('user_id') %}<a
+                href="{{ url_for('blog_bp.new_post') }}">Create the first post!</a>{% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+
+</body>
+
+</html>

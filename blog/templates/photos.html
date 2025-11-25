@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.12.0/baguetteBox.min.css">
+
+<div class="container py-4">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>🛰️ NASA Martian Soil Photo Gallery</h3>
+        </div>
+        <div class="card-body">
+            <div class="gallery gallery-flow" id="nasa-gallery">
+                {% for photo in photos %}
+                <div class="gallery-item" data-photo-id="{{ photo.id }}">
+                    <div class="position-relative">
+                        <a href="{{ url_for('blog_bp.serve_photo', filename=photo.filename) }}" title="{{ photo.caption or photo.filename }}">
+                            <img src="{{ url_for('blog_bp.serve_photo', filename=photo.filename) }}" class="rounded shadow-sm gallery-image" alt="{{ photo.caption or photo.filename }}">
+                        </a>
+                        {% if session['user_id'] is defined %}
+                        <a href="{{ url_for('blog_bp.edit_photo', photo_id=photo.id) }}" class="btn btn-sm btn-outline-primary position-absolute top-0 end-0 m-2" title="Edit Photo">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        <button class="btn btn-sm btn-outline-secondary position-absolute top-0 start-0 m-2 drag-handle" title="Drag to reorder" aria-label="Drag to reorder">☰</button>
+                        {% endif %}
+                    </div>
+                    <div class="mt-2">
+                        <small>{{ photo.caption or photo.filename }}</small>
+                        {% if photo.description %}
+                        {# Render newlines as <br> and provide truncation with Show more #}
+                        {% set desc = photo.description %}
+                        {% set short = desc[:150] %}
+                        {% set short_html = short | e %}
+                        {% set full_html = desc | e %}
+                        {% if desc|length > 150 %}
+                        <div class="mt-1">
+                            <small class="photo-desc">
+                                <span class="desc-short" style="white-space: pre-wrap;">{{ short_html }}... </span>
+                                <span class="desc-full d-none" style="white-space: pre-wrap;">{{ full_html }}</span>
+                                <a href="#" class="show-more small ms-2">Show more</a>
+                            </small>
+                        </div>
+                        {% else %}
+                        <div class="mt-1"><small class="photo-desc" style="white-space: pre-wrap;">{{ full_html }}</small></div>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                {% if photos|length == 0 %}
+                <div class="col-12">
+                    <p class="text-muted">No photos found.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.12.0/baguetteBox.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        baguetteBox.run('.gallery', {
+            animation: 'slideIn',
+            captions: function (element) {
+                return element.getAttribute('title') || element.querySelector('img').getAttribute('alt');
+            }
+        });
+    });
+</script>
+<!-- Reorder support for logged-in users using SortableJS -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+{% if session['user_id'] is defined %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const gallery = document.getElementById('nasa-gallery');
+    if (!gallery) return;
+
+    const sortable = Sortable.create(gallery, {
+        animation: 150,
+        handle: '.drag-handle',
+        draggable: '.gallery-item',
+        ghostClass: 'sortable-ghost',
+        onEnd: function (evt) {
+            // Build order array from DOM
+            const items = gallery.querySelectorAll('.gallery-item');
+            const order = Array.from(items).map(function (it) {
+                return parseInt(it.getAttribute('data-photo-id'), 10);
+            });
+            // POST new order to server
+            fetch('{{ url_for('blog_bp.reorder_photos') }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ order: order })
+            }).then(function (resp) {
+                if (!resp.ok) {
+                    console.error('Failed to save order');
+                }
+            }).catch(function (err) {
+                console.error('Reorder error', err);
+            });
+        }
+    });
+});
+</script>
+{% endif %}
+<script>
+// Toggle Show more links for photo descriptions
+document.addEventListener('click', function (e) {
+    if (e.target && e.target.matches('.show-more')) {
+        e.preventDefault();
+        const container = e.target.closest('.photo-desc');
+        if (!container) return;
+        const shortEl = container.querySelector('.desc-short');
+        const fullEl = container.querySelector('.desc-full');
+        if (fullEl.classList.contains('d-none')) {
+            fullEl.classList.remove('d-none');
+            shortEl.classList.add('d-none');
+            e.target.textContent = 'Show less';
+        } else {
+            fullEl.classList.add('d-none');
+            shortEl.classList.remove('d-none');
+            e.target.textContent = 'Show more';
+        }
+    }
+});
+</script>
+{% endblock %}

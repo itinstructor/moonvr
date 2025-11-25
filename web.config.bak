@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <system.webServer>
+    <!-- Do not add a catch-all handler mapping here; rely on the <httpPlatform> element below. -->
+
+    <httpPlatform processPath="C:\\inetpub\\moonvr\\.venv\\Scripts\\python.exe"
+                  arguments="waitress_app.py"
+                  startupTimeLimit="45"
+                  rapidFailsPerMinute="10"
+                  stdoutLogEnabled="true"
+                  stdoutLogFile="C:\\inetpub\\moonvr\\logs\\httpplatform-stdout.log" />
+
+    <httpErrors errorMode="Detailed" />
+    <staticContent>
+      <mimeMap fileExtension=".mjpg" mimeType="multipart/x-mixed-replace" />
+    </staticContent>
+
+    <urlCompression doDynamicCompression="false" doStaticCompression="false" />
+
+    <httpProtocol>
+      <customHeaders>
+        <add name="X-Accel-Buffering" value="no" />
+        <add name="Cache-Control" value="no-cache" />
+        <remove name="X-Frame-Options" />
+        <remove name="Cross-Origin-Embedder-Policy" />
+        <remove name="Cross-Origin-Opener-Policy" />
+      </customHeaders>
+    </httpProtocol>
+
+    <rewrite>
+      <rules>
+        <rule name="SetClientIPHeaders" stopProcessing="true">
+          <match url=".*" />
+          <conditions>
+            <add input="{HTTP_X_FORWARDED_FOR}" pattern="^$" />
+          </conditions>
+            <serverVariables>
+              <set name="HTTP_X_FORWARDED_FOR" value="{REMOTE_ADDR}" />
+              <set name="HTTP_X_REAL_IP" value="{REMOTE_ADDR}" />
+            </serverVariables>
+          <action type="None" />
+        </rule>
+      </rules>
+    </rewrite>
+  </system.webServer>
+
+</configuration>
+
+

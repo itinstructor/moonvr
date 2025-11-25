@@ -1,0 +1,269 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>🌍 Visitor Locations Map</h1>
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Total Visits</h5>
+                    <p class="card-text display-5" id="total-visitors">{{ total_visitors }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Unique Visitors</h5>
+                    <p class="card-text display-5" id="unique-visitors">{{ unique_visitors }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Container -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body p-0">
+                    <div id="visitor-map" style="height: 600px; width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Visitors and Top Visitors -->
+    <div class="row mt-4">
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Visitors</h5>
+                </div>
+                <div class="card-body">
+                    <div id="recent-visitors" class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Location</th>
+                                    <th>Visits</th>
+                                    <th>Last Visit</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-visitors-body">
+                                <tr>
+                                    <td colspan="3" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">🏆 Top Visitors</h5>
+                </div>
+                <div class="card-body">
+                    <div id="top-visitors" class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Location</th>
+                                    <th>Visits</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top-visitors-body">
+                                <tr>
+                                    <td colspan="3" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<!-- Leaflet MarkerCluster Plugin (for grouping markers) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+<script>
+    // Initialize the map centered on Nebraska (WNCC location)
+    const map = L.map('visitor-map').setView([41.4925, -99.9018], 4);
+
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+    }).addTo(map);
+
+    // Create a marker cluster group for better visualization
+    const markers = L.markerClusterGroup({
+        chunkedLoading: true,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true
+    });
+
+    // Fetch and display visitor locations
+    fetch('{{ url_for("geomap_bp.get_visitor_locations") }}')
+        .then(response => response.json())
+        .then(locations => {
+            if (locations.length === 0) {
+                console.log('No visitor locations found yet');
+                return;
+            }
+
+            // Add markers for each visitor location
+            locations.forEach(loc => {
+                if (loc.lat !== null && loc.lon !== null) {
+                    const marker = L.marker([loc.lat, loc.lon]);
+
+                    // Create popup content with visit count
+                    const visitText = loc.visit_count === 1 ? '1 visit' : `${loc.visit_count} visits`;
+                    const popupContent = `
+                        <div style="min-width: 220px;">
+                            <strong>${loc.city || 'Unknown City'}</strong><br>
+                            ${loc.region || ''} ${loc.country || ''}<br>
+                            <hr style="margin: 8px 0;">
+                            <strong>Visits:</strong> ${loc.visit_count}<br>
+                            <small><strong>First:</strong> ${new Date(loc.first_visit).toLocaleDateString()}</small><br>
+                            <small><strong>Last:</strong> ${new Date(loc.last_visit).toLocaleString()}</small>
+                        </div>
+                    `;
+
+                    marker.bindPopup(popupContent);
+                    markers.addLayer(marker);
+                }
+            });
+
+            // Add marker cluster group to map
+            map.addLayer(markers);
+
+            console.log(`Loaded ${locations.length} visitor locations`);
+        })
+        .catch(error => {
+            console.error('Error fetching visitor locations:', error);
+        });
+
+    // Fetch and display recent visitors
+    fetch('{{ url_for("geomap_bp.get_visitor_stats") }}')
+        .then(response => response.json())
+        .then(stats => {
+            // Update statistics
+            document.getElementById('total-visitors').textContent = stats.total_visitors;
+            document.getElementById('unique-visitors').textContent = stats.unique_visitors;
+
+            // Update recent visitors table
+            const tbody = document.getElementById('recent-visitors-body');
+            tbody.innerHTML = '';
+
+            if (stats.recent_visitors.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center">No recent visitors yet</td></tr>';
+                return;
+            }
+
+            stats.recent_visitors.forEach(visitor => {
+                const row = document.createElement('tr');
+                const location = `${visitor.city || 'Unknown'}, ${visitor.region || ''} ${visitor.country || ''}`.trim();
+                const time = new Date(visitor.last_visit).toLocaleString();
+                const visitBadge = visitor.visit_count > 1
+                    ? `<span class="badge bg-primary">${visitor.visit_count}</span>`
+                    : visitor.visit_count;
+
+                row.innerHTML = `
+                    <td>${location}</td>
+                    <td class="text-center">${visitBadge}</td>
+                    <td>${time}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Update top visitors table
+            const topTbody = document.getElementById('top-visitors-body');
+            topTbody.innerHTML = '';
+
+            if (stats.top_visitors && stats.top_visitors.length === 0) {
+                topTbody.innerHTML = '<tr><td colspan="3" class="text-center">No visitors yet</td></tr>';
+                return;
+            }
+
+            stats.top_visitors.forEach((visitor, index) => {
+                const row = document.createElement('tr');
+                const location = `${visitor.city || 'Unknown'}, ${visitor.region || ''} ${visitor.country || ''}`.trim();
+                const rank = index + 1;
+                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+                const visitBadge = `<span class="badge bg-success">${visitor.visit_count}</span>`;
+
+                row.innerHTML = `
+                    <td class="text-center">${medal}</td>
+                    <td>${location}</td>
+                    <td class="text-center">${visitBadge}</td>
+                `;
+                topTbody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching visitor stats:', error);
+        });
+
+    // Auto-refresh stats every 30 seconds
+    setInterval(() => {
+        fetch('{{ url_for("geomap_bp.get_visitor_stats") }}')
+            .then(response => response.json())
+            .then(stats => {
+                document.getElementById('total-visitors').textContent = stats.total_visitors;
+                document.getElementById('unique-visitors').textContent = stats.unique_visitors;
+            });
+    }, 30000);
+</script>
+
+<style>
+    /* Custom styling for marker clusters */
+    .marker-cluster-small {
+        background-color: rgba(181, 226, 140, 0.6);
+    }
+
+    .marker-cluster-small div {
+        background-color: rgba(110, 204, 57, 0.6);
+    }
+
+    .marker-cluster-medium {
+        background-color: rgba(241, 211, 87, 0.6);
+    }
+
+    .marker-cluster-medium div {
+        background-color: rgba(240, 194, 12, 0.6);
+    }
+
+    .marker-cluster-large {
+        background-color: rgba(253, 156, 115, 0.6);
+    }
+
+    .marker-cluster-large div {
+        background-color: rgba(241, 128, 23, 0.6);
+    }
+
+    /* Make cards look nicer */
+    .card {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: none;
+    }
+</style>
+{% endblock %}
+

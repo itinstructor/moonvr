@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Administration - NASA Blog</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ url_for('blog_bp.static', filename='css/blog.css') }}">
+</head>
+
+<body>
+    {% include '_navbar.html' %}
+
+    <div class="container py-4">
+        <h1 class="mb-4"><i class="bi bi-shield-lock"></i> User Administration</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <div class="mb-4">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                <i class="bi bi-plus-circle"></i> Add User
+            </button>
+        </div>
+
+
+        <!-- Pending Approvals -->
+        {% if pending_users %}
+        <div class="card mb-4">
+            <div class="card-header bg-warning">
+                <h3><i class="bi bi-clock-history"></i> Pending Approvals ({{ pending_users|length }})</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in pending_users %}
+                            <tr>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('blog_bp.approve_user', user_id=user.id) }}"
+                                        class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="bi bi-check-circle"></i> Approve
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('blog_bp.delete_user', user_id=user.id) }}"
+                                        class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-danger"
+                                            onclick="return confirm('Delete this user?')">
+                                            <i class="bi bi-trash"></i> Reject
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- All Users -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-people"></i> All Users ({{ users|length }})</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Role</th>
+                                <th>Posts</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    {% if user.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                    {% endif %}
+                                    {% if not user.is_approved %}
+                                    <span class="badge bg-warning">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if user.is_admin %}
+                                    <span class="badge bg-danger">Admin</span>
+                                    {% else %}
+                                    <span class="badge bg-info">User</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user.posts|length }}</td>
+                                <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
+                                        data-bs-target="#editUserModal{{ user.id }}">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-info" data-bs-toggle="modal"
+                                        data-bs-target="#resetPasswordModal{{ user.id }}">
+                                        <i class="bi bi-key"></i> Reset
+                                    </button>
+                                    {% if user.username != 'loringw' %}
+                                    <form method="POST" action="{{ url_for('blog_bp.delete_user', user_id=user.id) }}"
+                                        class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-danger"
+                                            onclick="return confirm('Delete user {{ user.username }}? This will also delete all their posts.')">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+
+                            <!-- Edit User Modal -->
+                            <div class="modal fade" id="editUserModal{{ user.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Edit User: {{ user.username }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <form method="POST"
+                                            action="{{ url_for('blog_bp.edit_user', user_id=user.id) }}">
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label for="username{{ user.id }}"
+                                                        class="form-label">Username</label>
+                                                    <input type="text" class="form-control" id="username{{ user.id }}"
+                                                        name="username" value="{{ user.username }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="email{{ user.id }}" class="form-label">Email</label>
+                                                    <input type="email" class="form-control" id="email{{ user.id }}"
+                                                        name="email" value="{{ user.email }}" required>
+                                                </div>
+                                                <div class="mb-3 form-check">
+                                                    <input type="checkbox" class="form-check-input"
+                                                        id="is_active{{ user.id }}" name="is_active" {% if
+                                                        user.is_active %}checked{% endif %}>
+                                                    <label class="form-check-label"
+                                                        for="is_active{{ user.id }}">Active</label>
+                                                </div>
+                                                <div class="mb-3 form-check">
+                                                    <input type="checkbox" class="form-check-input"
+                                                        id="is_admin{{ user.id }}" name="is_admin" {% if user.is_admin
+                                                        %}checked{% endif %} {% if user.username=='loringw' %}disabled{%
+                                                        endif %}>
+                                                    <label class="form-check-label"
+                                                        for="is_admin{{ user.id }}">Administrator</label>
+                                                </div>
+                                                <div class="mb-3 form-check">
+                                                    <input type="checkbox" class="form-check-input"
+                                                        id="is_approved{{ user.id }}" name="is_approved" {% if
+                                                        user.is_approved %}checked{% endif %}>
+                                                    <label class="form-check-label"
+                                                        for="is_approved{{ user.id }}">Approved</label>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-primary">Save
+                                                    Changes</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Reset Password Modal -->
+                            <div class="modal fade" id="resetPasswordModal{{ user.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Reset Password: {{ user.username }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <form method="POST"
+                                            action="{{ url_for('blog_bp.reset_password', user_id=user.id) }}">
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label for="new_password{{ user.id }}" class="form-label">New
+                                                        Password</label>
+                                                    <input type="password" class="form-control"
+                                                        id="new_password{{ user.id }}" name="new_password" required>
+                                                    <small class="form-text text-muted">
+                                                        Requirements: 16+ characters, at least 3 of (uppercase,
+                                                        lowercase, number, symbol)
+                                                    </small>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="confirm_password{{ user.id }}"
+                                                        class="form-label">Confirm Password</label>
+                                                    <input type="password" class="form-control"
+                                                        id="confirm_password{{ user.id }}" name="confirm_password"
+                                                        required>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-primary">Reset
+                                                    Password</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal fade" id="addUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="{{ url_for('blog_bp.add_user') }}">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="new_username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="new_username" name="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="new_email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="new_email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="new_password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="new_password" name="password" required>
+                            <small class="form-text text-muted">
+                                Requirements: 16+ characters, at least 3 of (uppercase, lowercase, number,
+                                symbol)
+                            </small>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="new_is_admin" name="is_admin">
+                            <label class="form-check-label" for="new_is_admin">Administrator</label>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="new_is_approved" name="is_approved"
+                                checked>
+                            <label class="form-check-label" for="new_is_approved">Approved</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
