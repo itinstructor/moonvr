@@ -1,6 +1,7 @@
 ﻿import re
 from flask import request
 import logging
+from .settings import MIN_PASSWORD_LENGTH
 
 
 def validate_password(password):
@@ -12,8 +13,8 @@ def validate_password(password):
     - At least one number
     Returns: (is_valid: bool, error_message: str)
     """
-    if len(password) < 12:
-        return False, "Password must be at least 12 characters long"
+    if len(password) < MIN_PASSWORD_LENGTH:
+        return False, f"Password must be at least {MIN_PASSWORD_LENGTH} characters long"
     if not re.search(r'[A-Z]', password):
         return False, "Password must contain at least one uppercase letter"
     if not re.search(r'[a-z]', password):

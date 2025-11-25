@@ -43,7 +43,7 @@
                                 <label for="password" class="form-label">Password</label>
                                 <input type="password" class="form-control" id="password" name="password" required>
                                 <small class="form-text text-muted">
-                                    Requirements: 16+ characters, at least 3 of (uppercase, lowercase, number, symbol)
+                                    Requirements: {{ min_password_length }}+ characters, at least 3 of (uppercase, lowercase, number, symbol)
                                 </small>
                             </div>
                             <div class="mb-3">

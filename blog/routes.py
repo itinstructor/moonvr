@@ -2,6 +2,7 @@ from flask import send_from_directory
 from .models import BlogPost, Photo  # Make sure BlogPost and Photo are imported
 from flask import current_app, render_template
 from . import blog_bp
+from .settings import MIN_PASSWORD_LENGTH
 try:
     from sqlalchemy.orm import selectinload
     from database import db  # Fixed: import from database.py to avoid circular import
@@ -11,6 +12,7 @@ except Exception:
 from flask import render_template, request, redirect, url_for, flash, session, abort, jsonify, current_app, make_response
 from .models import User, BlogPost, BlogImage, LoginAttempt
 from .auth import validate_password, get_client_ip, log_login_attempt
+from .settings import MIN_PASSWORD_LENGTH
 from .utils import save_uploaded_image
 from datetime import datetime, timezone
 from functools import wraps
@@ -108,29 +110,29 @@ def register():
         # Validate CAPTCHA
         if not captcha_user or not captcha_answer:
             flash('Please complete the security check.', 'danger')
-            return render_template('blog_register.html')
+            return render_template('blog_register.html', min_password_length=MIN_PASSWORD_LENGTH)
 
         try:
             if int(captcha_user) != int(captcha_answer):
                 flash('Incorrect answer to security question.', 'danger')
-                return render_template('blog_register.html')
+                return render_template('blog_register.html', min_password_length=MIN_PASSWORD_LENGTH)
         except ValueError:
             flash('Invalid security answer.', 'danger')
-            return render_template('blog_register.html')
+            return render_template('blog_register.html', min_password_length=MIN_PASSWORD_LENGTH)
 
         # Validate input
         if not username or not email or not password:
             flash('All fields are required.', 'danger')
-            return render_template('blog_register.html')
+            return render_template('blog_register.html', min_password_length=MIN_PASSWORD_LENGTH)
 
         if password != password_confirm:
             flash('Passwords do not match.', 'danger')
-            return render_template('blog_register.html')
+            return render_template('blog_register.html', min_password_length=MIN_PASSWORD_LENGTH)
 
         # Password strength check
-        if len(password) < 12:
-            flash('Password must be at least 12 characters long.', 'danger')
-            return render_template('blog_register.html')
+        if len(password) < MIN_PASSWORD_LENGTH:
+            flash(f'Password must be at least {MIN_PASSWORD_LENGTH} characters long.', 'danger')
+            return render_template('blog_register.html', min_password_length=MIN_PASSWORD_LENGTH)
 
         complexity_count = 0
         if any(c.isupper() for c in password):
@@ -145,16 +147,16 @@ def register():
         if complexity_count < 3:
             flash(
                 'Password must contain at least 3 of: uppercase, lowercase, number, symbol.', 'danger')
-            return render_template('blog_register.html')
+            return render_template('blog_register.html', min_password_length=MIN_PASSWORD_LENGTH)
 
         # Check if user exists
         if User.query.filter_by(username=username).first():
             flash('Username already taken.', 'danger')
-            return render_template('blog_register.html')
+            return render_template('blog_register.html', min_password_length=MIN_PASSWORD_LENGTH)
 
         if User.query.filter_by(email=email).first():
             flash('Email already registered.', 'danger')
-            return render_template('blog_register.html')
+            return render_template('blog_register.html', min_password_length=MIN_PASSWORD_LENGTH)
 
         # Create user (unapproved by default)
         hashed_password = generate_password_hash(password)
@@ -175,8 +177,8 @@ def register():
             db.session.rollback()
             current_app.logger.error(f"Registration error: {e}")
             flash('Registration failed. Please try again.', 'danger')
-            return render_template('blog_register.html')
-    return render_template('blog_register.html')
+            return render_template('blog_register.html', min_password_length=MIN_PASSWORD_LENGTH)
+    return render_template('blog_register.html', min_password_length=MIN_PASSWORD_LENGTH)
 
 
 @blog_bp.route('/login', methods=['GET', 'POST'])
@@ -733,8 +735,8 @@ def reset_password(user_id):
         return redirect(url_for('blog_bp.admin'))
 
     # Password strength check
-    if len(new_password) < 12:
-        flash('Password must be at least 12 characters long.', 'danger')
+    if len(new_password) < MIN_PASSWORD_LENGTH:
+        flash(f'Password must be at least {MIN_PASSWORD_LENGTH} characters long.', 'danger')
         return redirect(url_for('blog_bp.admin'))
 
     complexity_count = 0
@@ -795,8 +797,8 @@ def add_user():
         return redirect(url_for('blog_bp.admin'))
 
     # Password strength check
-    if len(password) < 12:
-        flash('Password must be at least 12 characters long.', 'danger')
+    if len(password) < MIN_PASSWORD_LENGTH:
+        flash(f'Password must be at least {MIN_PASSWORD_LENGTH} characters long.', 'danger')
         return redirect(url_for('blog_bp.admin'))
 
     complexity_count = 0

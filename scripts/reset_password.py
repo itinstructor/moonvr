@@ -16,7 +16,7 @@ from database import db
 from main_app import app
 
 
-MIN_PASSWORD_LENGTH = 12
+from blog.settings import MIN_PASSWORD_LENGTH
 
 
 def validate_password(pw: str):

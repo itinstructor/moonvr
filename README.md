@@ -24,7 +24,7 @@
 6. Install required packages:
 
    ```bash
-   pip install flask waitress requests flask-sqlalchemy
+   pip install flask waitress requests flask-sqlalchemy geoip2 python-env tzdata pillow python-slugify
    ```
 
 7. Restart the IIS server
