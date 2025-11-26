@@ -37,7 +37,7 @@
         <!-- Pending Approvals -->
         {% if pending_users %}
         <div class="card mb-4">
-            <div class="card-header bg-warning">
+            <div class="card-header bg-secondary text-light">
                 <h3><i class="bi bi-clock-history"></i> Pending Approvals ({{ pending_users|length }})</h3>
             </div>
             <div class="card-body">
@@ -83,7 +83,7 @@
 
         <!-- All Users -->
         <div class="card">
-            <div class="card-header">
+            <div class="card-header bg-secondary text-light">
                 <h3><i class="bi bi-people"></i> All Users ({{ users|length }})</h3>
             </div>
             <div class="card-body">

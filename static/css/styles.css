@@ -1,4 +1,14 @@
-﻿/* =============================================================================
+﻿/* Force navbar border to black for dark theme */
+.navbar, .navbar-expand-lg {
+    border-color: #000 !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+}
+/* Force all card and card-header borders to black for dark theme contrast */
+.card, .card-header {
+    border-color: #000 !important;
+}
+/* =============================================================================
    GLOBAL STYLES - These apply to the entire website
    ============================================================================= */
 
@@ -37,22 +47,22 @@ a:hover {
    NAVIGATION BAR STYLES - Top menu with links
    ============================================================================= */
 
-/* Main navbar background - keeps WNCC blue theme */
+/* Main navbar background - now uses Bootstrap bg-dark */
 .navbar,
 .navbar-expand-lg {
-    background-color: rgb(0, 58, 112) !important;  /* Force WNCC blue */
-    background: rgb(0, 58, 112) !important;         /* Backup blue */
-    border: none !important;                        /* Remove default borders */
+    background-color: #212529 !important;  /* Bootstrap bg-dark */
+    background: #212529 !important;
+    border: none !important;
 }
 
 /* The container inside the navbar - adds subtle styling */
 .navbar .container {
     background: rgba(255, 255, 255, 0.05);  /* Very light transparent white overlay */
-    border: 1px solid #ff6b35;              /* Orange border for WNCC branding */
-    border-radius: 0.375rem;                /* Rounded corners */
-    margin-top: 1rem;                       /* Space above navbar */
-    margin-bottom: 1rem;                    /* Space below navbar */
-    padding: 0.75rem 1rem;                  /* Internal spacing */
+    border: 1px solid #000 !important;      /* Black border for dark theme */
+    border-radius: 0.375rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
 }
 
 /* Individual navigation links styling */
