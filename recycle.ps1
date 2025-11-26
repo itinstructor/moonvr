@@ -11,7 +11,7 @@ if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administra
 
 # Clear Python cache
 Write-Output "Clearing Python bytecode cache..."
-Get-ChildItem -Path C:\inetpub\moonvr -Include __pycache__ -Recurse -Force | Remove-Item -Recurse -Force
+.\clear_bytecode.ps1
 
 Write-Output "Recycling IIS application pool '$PoolName'..."
 
@@ -19,7 +19,7 @@ Write-Output "Recycling IIS application pool '$PoolName'..."
 try {
   Import-Module WebAdministration -ErrorAction Stop
   Restart-WebAppPool -Name $PoolName -ErrorAction Stop
-  Write-Output "Recycle succeeded via Restart-WebAppPool."
+  Write-Output "Recycle succeeded via Restart-MoonVRPool."
   exit 0
 } catch {
   Write-Warning "Restart-WebAppPool failed or WebAdministration not available: $($_.Exception.Message)"
