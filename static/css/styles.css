@@ -1,4 +1,9 @@
-﻿/* Force navbar border to black for dark theme */
+﻿/* Restore original card-body background and text color */
+.card-body {
+    background-color: rgba(255, 255, 255, 0.05);  /* Light transparent background */
+    color: white;
+}
+/* Force navbar border to black for dark theme */
 .navbar, .navbar-expand-lg {
     border-color: #000 !important;
     border-width: 1px !important;
@@ -118,10 +123,7 @@ a:hover {
 }
 
 /* Card body (main content area) styling */
-.card-body {
-    background-color: rgba(255, 255, 255, 0.05);  /* Light transparent background */
-    color: white;                                   /* White text */
-}
+/* .card-body background override removed to allow Bootstrap card backgrounds (e.g., bg-dark) to show */
 
 
 /* =============================================================================

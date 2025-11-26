@@ -1,3 +1,12 @@
+/* Utility class for pre-wrapped text */
+.pre-wrap {
+    white-space: pre-wrap;
+}
+/* Blog post card style to match main site cards */
+.blog-post-card, .blog-post-card .card-body {
+    background-color: rgba(255,255,255,0.05) !important;
+    color: #fff !important;
+}
 /* Dark theme for NASA blog pages */
 body {
     background-color: #1a1a2e;
@@ -12,6 +21,10 @@ body {
     background-color: #0f3460;
     border-color: #16213e;
     color: #e0e0e0;
+}
+.card-body {
+    background-color: rgba(255, 255, 255, 0.05);  /* Light transparent background */
+    color: white;                                 /* White text */
 }
 
 .card-title {

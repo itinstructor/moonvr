@@ -34,13 +34,13 @@
                         {% if desc|length > 150 %}
                         <div class="mt-1">
                             <small class="photo-desc">
-                                <span class="desc-short" style="white-space: pre-wrap;">{{ short_html }}... </span>
-                                <span class="desc-full d-none" style="white-space: pre-wrap;">{{ full_html }}</span>
+                                <span class="desc-short pre-wrap">{{ short_html }}... </span>
+                                <span class="desc-full d-none pre-wrap">{{ full_html }}</span>
                                 <a href="#" class="show-more small ms-2">Show more</a>
                             </small>
                         </div>
                         {% else %}
-                        <div class="mt-1"><small class="photo-desc" style="white-space: pre-wrap;">{{ full_html }}</small></div>
+                        <div class="mt-1"><small class="photo-desc pre-wrap">{{ full_html }}</small></div>
                         {% endif %}
                         {% endif %}
                     </div>

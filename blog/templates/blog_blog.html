@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="{{ url_for('blog_bp.static', filename='css/blog.css') }}">
 </head>
 
-<body>
+<body class="bg-dark text-light">
     {% include '_navbar.html' %}
 
     <div class="container py-4 mars-blog">
@@ -22,7 +22,7 @@
         <div class="row g-4">
             {% for post in posts %}
             <div class="col-12">
-                <div class="card h-100 mb-3">
+                <div class="card h-100 mb-3 blog-post-card">
                     <div class="card-body">
                         <h5 class="card-title">{{ post.title }}</h5>
                         <p class="text-muted small">

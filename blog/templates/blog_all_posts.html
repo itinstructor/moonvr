@@ -11,7 +11,7 @@
     <!-- Custom styles for the page -->
     <style>
       body {
-        background-color: #e9f2ff; /* Light blue background */
+        background-color: #212529; /* Match site dark background */
       }
     </style>
 </head>
@@ -22,7 +22,7 @@
 
     {% if posts %}
         {% for post in posts %}
-            <div class="card mb-4">
+            <div class="card mb-4 blog-post-card">
                 <div class="card-body">
                     <h2 class="card-title">{{ post.title }}</h2>
                     <p class="card-subtitle mb-2 text-muted">
