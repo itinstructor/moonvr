@@ -28,8 +28,8 @@ try {
     $action = New-ScheduledTaskAction -Execute "PowerShell.exe" `
         -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`""
 
-    # Create the trigger (daily at 2:00 AM)
-    $trigger = New-ScheduledTaskTrigger -Daily -At 2:00AM
+    # Create the trigger (daily at 2:30 AM)
+    $trigger = New-ScheduledTaskTrigger -Daily -At 2:30AM
 
     # Create settings
     $settings = New-ScheduledTaskSettingsSet `
@@ -55,7 +55,7 @@ try {
     Write-Host "  Name: $taskName"
     Write-Host "  Schedule: Daily at 2:00 AM"
     Write-Host "  Script: $scriptPath"
-    Write-Host "  Retention: 30 days"
+    Write-Host "  Retention: 14 days"
     Write-Host "`nBackup location: C:\inetpub\moonvr\backups"
     
     # Test the backup immediately

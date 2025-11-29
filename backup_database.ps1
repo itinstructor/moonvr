@@ -4,7 +4,7 @@
 $ErrorActionPreference = "Stop"
 
 # Configuration
-$dbPath = "C:\inetpub\moonvr\instance\nasa_blog.db"
+$dbPath = "C:\inetpub\moonvr\instance\blog.db"
 $backupDir = "C:\inetpub\moonvr\backups"
 $timestamp = Get-Date -Format "yyyy-MM-dd_HHmmss"
 $backupFileName = "blog_$timestamp.bak"
